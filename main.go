@@ -178,6 +178,31 @@ type filter struct {
 	Value string `json:"value"`
 }
 
+// normalizeOp maps common aliases (eq, gte, …) onto the canonical
+// operator set and rejects anything unknown. Without this an unknown
+// op silently matched nothing, which reads as "0 results" instead of
+// "you made a mistake" — the worst possible failure mode for an
+// LLM-driven caller.
+func normalizeOp(op string) (string, error) {
+	switch strings.ToLower(strings.TrimSpace(op)) {
+	case "==", "=", "eq", "equals":
+		return "==", nil
+	case "!=", "ne", "neq", "not_equals":
+		return "!=", nil
+	case ">=", "gte":
+		return ">=", nil
+	case ">", "gt":
+		return ">", nil
+	case "<=", "lte":
+		return "<=", nil
+	case "<", "lt":
+		return "<", nil
+	case "contains":
+		return "contains", nil
+	}
+	return "", fmt.Errorf("unknown filter op %q; valid: ==, !=, >=, >, <=, <, contains", op)
+}
+
 func matchFilter(rec map[string]any, f filter) bool {
 	raw, ok := rec[f.Field]
 	if !ok || raw == nil {
@@ -290,7 +315,9 @@ func main() {
 		json.RawMessage(`{"type":"object","properties":{
 			"feed":{"type":"string","description":"feed name, e.g. kev | enriched | epss"},
 			"filters":{"type":"array","items":{"type":"object","properties":{
-				"field":{"type":"string"},"op":{"type":"string"},"value":{"type":"string"}},
+				"field":{"type":"string"},
+				"op":{"type":"string","enum":["==","!=",">=",">","<=","<","contains"]},
+				"value":{"type":"string"}},
 				"required":["field","op","value"]}},
 			"sort_by":{"type":"string"},
 			"order":{"type":"string","enum":["asc","desc"]},
@@ -359,6 +386,13 @@ func handleSearchFeed(store *feedStore) server.ToolHandlerFunc {
 			if err := json.Unmarshal(blob, &filters); err != nil {
 				return mcp.NewToolResultError("filters must be a list of {field, op, value}"), nil
 			}
+		}
+		for i := range filters {
+			op, err := normalizeOp(filters[i].Op)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			filters[i].Op = op
 		}
 
 		rows := make([]map[string]any, 0, 256)
