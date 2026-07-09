@@ -33,6 +33,12 @@ came from.
 go install github.com/eason4kim-rocket/purify-feeds-mcp@latest
 ```
 
+Or use the Docker image (no Go toolchain needed):
+
+```bash
+docker pull ghcr.io/eason4kim-rocket/purify-feeds-mcp:latest
+```
+
 Or build from source:
 
 ```bash
@@ -53,6 +59,21 @@ cd purify-feeds-mcp && go build .
         "PURIFY_API_URL": "https://feeds.verifly.pro/feeds-api",
         "PURIFY_API_KEY": "<your-api-key>"
       }
+    }
+  }
+}
+```
+
+Or with Docker (the image defaults `PURIFY_API_URL` to the public gateway):
+
+```json
+{
+  "mcpServers": {
+    "purify-feeds": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "PURIFY_API_KEY",
+               "ghcr.io/eason4kim-rocket/purify-feeds-mcp:latest"],
+      "env": { "PURIFY_API_KEY": "<your-api-key>" }
     }
   }
 }
