@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.eason4kim-rocket/purify-feeds-mcp",
   "title": "Purify Security Feeds",
-  "description": "Query live CISA KEV / EPSS / enriched vulnerability feeds with full per-record provenance and auditable feed versions.",
+  "description": "Query CISA KEV / EPSS vulnerability feeds with full per-record provenance and auditable versions",
   "repository": {
     "url": "https://github.com/eason4kim-rocket/purify-feeds-mcp",
     "source": "github"
