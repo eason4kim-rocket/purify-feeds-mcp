@@ -50,7 +50,7 @@ cd purify-feeds-mcp && go build .
     "purify-feeds": {
       "command": "/path/to/purify-feeds-mcp",
       "env": {
-        "PURIFY_API_URL": "https://<gateway-host>/feeds-api",
+        "PURIFY_API_URL": "https://feeds.verifly.pro/feeds-api",
         "PURIFY_API_KEY": "<your-api-key>"
       }
     }
@@ -59,7 +59,8 @@ cd purify-feeds-mcp && go build .
 ```
 
 The public gateway is read-only (GET only, feed whitelist, per-key rate
-limits). API keys are issued manually during the pilot — open an issue or
+limits). Health check: `https://feeds.verifly.pro/healthz` — no key needed.
+API keys are issued manually during the pilot — open an issue or
 contact the maintainer to get one.
 
 ## Environment variables
